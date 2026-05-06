@@ -1,0 +1,95 @@
+.intro-section {
+  padding-top: 100px; /* Offset for header */
+}
+
+.intro-content {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+}
+
+.intro-text {
+  flex: 1;
+}
+
+.intro-desc {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+}
+
+.intro-actions {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.intro-visual {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-card {
+  width: 350px;
+  height: 350px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.visual-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+  z-index: -1;
+}
+
+.visual-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.visual-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.line {
+  height: 12px;
+  background: var(--glass-border);
+  border-radius: 6px;
+}
+
+.line-1 { width: 100%; }
+.line-2 { width: 80%; }
+.line-3 { width: 60%; }
+
+@media (max-width: 992px) {
+  .intro-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 3rem;
+  }
+
+  .intro-desc {
+    margin: 0 auto 2.5rem auto;
+  }
+
+  .intro-actions {
+    justify-content: center;
+  }
+}

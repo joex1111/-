@@ -1,0 +1,223 @@
+.game-section {
+  position: relative;
+}
+
+.game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-stats {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--card-bg);
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+}
+
+.stat-icon {
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.hole-container {
+  width: 90px;
+  height: 90px;
+  position: relative;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%23ff0055" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6l4-4 11.5 11.5c1.3 1.3 1.3 3.4 0 4.7l-1 1c-1.3 1.3-3.4 1.3-4.7 0z"/><path d="M18 10l4-4"/></svg>') 10 30, pointer;
+  overflow: hidden;
+  border-radius: 15px;
+  background: var(--bg-primary);
+  box-shadow: inset 0 8px 15px rgba(0,0,0,0.5);
+}
+
+[data-theme='light'] .hole-container {
+  box-shadow: inset 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.hole {
+  width: 80%;
+  height: 25px;
+  background: #000;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 8px;
+  left: 10%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+[data-theme='light'] .hole {
+  background: #333;
+}
+
+.mole {
+  width: 70%;
+  height: 80%;
+  background: linear-gradient(145deg, #a05a2c, #8b4513); /* Default Normal Mole */
+  position: absolute;
+  bottom: -100%; /* Hidden by default */
+  left: 15%;
+  border-radius: 30px 30px 10px 10px;
+  transition: bottom 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 -5px 10px rgba(0,0,0,0.3);
+}
+
+/* 金地鼠 */
+.mole.gold {
+  background: linear-gradient(145deg, #ffd700, #b8860b);
+}
+.mole.gold::after {
+  background: #ffffe0;
+}
+
+/* 銀地鼠 */
+.mole.silver {
+  background: linear-gradient(145deg, #e0e0e0, #a0a0a0);
+}
+.mole.silver::after {
+  background: #ffffff;
+}
+
+/* 黑地鼠 (炸彈/扣分) */
+.mole.black {
+  background: linear-gradient(145deg, #4a4a4a, #1a1a1a);
+}
+.mole.black::after {
+  background: #ff3333; /* 紅鼻子 */
+}
+
+/* 一般地鼠 (咖啡色，維持原本設定) */
+.mole.normal {
+  background: linear-gradient(145deg, #a05a2c, #8b4513);
+}
+
+.mole::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 20px 0 0 #000;
+}
+
+.mole::after {
+  content: '';
+  position: absolute;
+  top: 35%;
+  left: 40%;
+  width: 20%;
+  height: 8px;
+  background: #ffb6c1;
+  border-radius: 50%;
+}
+
+.mole.up {
+  bottom: 15px;
+}
+
+.mole.hit {
+  background: var(--danger);
+  bottom: -100%;
+  transition: bottom 0.1s;
+}
+
+.hit-effect {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--success);
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px var(--success);
+  animation: floatUp 0.5s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hit-effect.negative {
+  color: var(--danger);
+  text-shadow: 0 0 10px var(--danger);
+}
+
+.hit-effect.gold-score {
+  color: #ffd700;
+  text-shadow: 0 0 15px #ffd700;
+  font-size: 1.5rem;
+}
+
+.hit-effect.silver-score {
+  color: #e0e0e0;
+  text-shadow: 0 0 10px #e0e0e0;
+}
+
+@keyframes floatUp {
+  0% { top: 10%; opacity: 1; }
+  100% { top: -20%; opacity: 0; }
+}
+
+.game-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.game-over-msg {
+  margin-top: 2rem;
+  text-align: center;
+  animation: floatUpMsg 0.5s ease-out;
+}
+
+@keyframes floatUpMsg {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.game-over-msg h3 {
+  color: var(--accent);
+  font-size: 2rem;
+}
+
+@media (max-width: 600px) {
+  .hole-container {
+    width: 60px;
+    height: 60px;
+  }
+  .grid {
+    gap: 0.5rem;
+  }
+  .game-container {
+    padding: 1.5rem;
+  }
+  .mole::before {
+    width: 8px;
+    height: 8px;
+    box-shadow: 14px 0 0 #000;
+  }
+  .mole::after {
+    height: 5px;
+  }
+}

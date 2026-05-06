@@ -1,0 +1,128 @@
+.profile-section {
+  background-color: var(--bg-secondary);
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  margin-top: 3rem;
+}
+
+.profile-card {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.avatar-container {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.avatar-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  border: 4px solid var(--bg-secondary);
+}
+
+.avatar-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--accent), transparent, var(--danger), transparent, var(--accent));
+  animation: spin 4s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.profile-name {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-title {
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+}
+
+.profile-bio {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  max-width: 600px;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.skill-card {
+  padding: 2rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.skill-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='light'] .skill-card:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.skill-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  background: var(--card-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 1.5rem auto;
+  color: var(--accent);
+  transition: all 0.3s ease;
+}
+
+.skill-card:hover .skill-icon {
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+[data-theme='light'] .skill-card:hover .skill-icon {
+  color: #fff;
+}
+
+.skill-card h4 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.skill-card p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
