@@ -6,7 +6,8 @@
   --bg-secondary: #12121c;
   --text-primary: #ffffff;
   --text-secondary: #a0a0b0;
-  --accent: #00f0ff; /* Neon cyan */
+  --accent: #00f0ff;
+  /* Neon cyan */
   --accent-hover: #00c3ff;
   --accent-glow: rgba(0, 240, 255, 0.4);
   --danger: #ff0055;
@@ -22,7 +23,8 @@
   --bg-secondary: #ffffff;
   --text-primary: #1a1a24;
   --text-secondary: #5a5a6a;
-  --accent: #007c91; /* 淺色模式預設：加深藍綠色以利閱讀 */
+  --accent: #007c91;
+  /* 淺色模式預設：加深藍綠色以利閱讀 */
   --accent-hover: #005f70;
   --accent-glow: rgba(0, 124, 145, 0.2);
   --danger: #e6004c;
@@ -122,7 +124,12 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -258,9 +265,17 @@ a:hover {
 
 /* Animations */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .float-anim {
@@ -268,14 +283,30 @@ a:hover {
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 var(--accent-glow); }
-  70% { box-shadow: 0 0 0 15px rgba(0, 0, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(0, 0, 0, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 2rem; }
-  .section { padding: 4rem 0; }
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .section {
+    padding: 4rem 0;
+  }
 }

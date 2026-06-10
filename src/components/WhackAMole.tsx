@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, RotateCcw, Trophy, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 import './WhackAMole.css';
 
 type MoleType = 'gold' | 'silver' | 'black' | 'normal';
@@ -64,10 +65,13 @@ const WhackAMole = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch('/api/scores');
+      const response = await fetch(`${API_BASE}/api/scores`);
       if (response.ok) {
-        const data = await response.json();
-        setLeaderboard(data);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          setLeaderboard(data);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
@@ -107,7 +111,7 @@ const WhackAMole = () => {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('/api/scores', {
+      const response = await fetch(`${API_BASE}/api/scores`, {
         key: 'submit-score',
         method: 'POST',
         headers,

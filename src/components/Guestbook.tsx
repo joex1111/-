@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare, Loader2, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 import './Guestbook.css';
 
 interface Message {
@@ -33,12 +34,17 @@ const Guestbook = () => {
   const fetchMessages = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/messages');
+      const response = await fetch(`${API_BASE}/api/messages`);
       if (!response.ok) {
-        throw new Error('無法取得留言列表');
+        throw new Error(`無法取得留言列表 (HTTP ${response.status})`);
       }
-      const data = await response.json();
-      setMessages(data);
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        setMessages(data);
+      } else {
+        throw new Error('伺服器未回傳 JSON 格式資料');
+      }
     } catch (err) {
       console.error('Error fetching messages:', err);
     } finally {
@@ -74,7 +80,7 @@ const Guestbook = () => {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('/api/messages', {
+      const response = await fetch(`${API_BASE}/api/messages`, {
         key: 'submit-message',
         method: 'POST',
         headers,
@@ -84,12 +90,19 @@ const Guestbook = () => {
         }),
       } as RequestInit);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '留言送出失敗，請稍後再試');
+      let data: any = null;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
       }
 
-      const newMsg = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          data?.error || `留言送出失敗 (HTTP ${response.status})，請確認後台伺服器是否已啟動`
+        );
+      }
+
+      const newMsg = data;
       
       // Inject is_member locally for immediate display
       const displayMsg = {

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE } from '../config';
 
 export interface User {
   id: number;
@@ -31,15 +32,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
         if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            setUser(data.user);
+          } else {
+            logout();
+          }
         } else {
           // Token expired or invalid
           logout();
@@ -55,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   const login = async (username: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
       key: 'login-auth',
       method: 'POST',
       headers: {
@@ -64,10 +70,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ username, password })
     } as RequestInit);
 
-    const data = await response.json();
+    let data: any = null;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || '登入失敗，請檢查帳號密碼');
+      throw new Error(
+        data?.error || `連線失敗 (HTTP ${response.status})，請確認後台伺服器是否已啟動`
+      );
     }
 
     localStorage.setItem('auth_token', data.token);
@@ -76,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (username: string, password: string, displayName: string) => {
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch(`${API_BASE}/api/auth/register`, {
       key: 'register-auth',
       method: 'POST',
       headers: {
@@ -85,10 +97,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ username, password, displayName })
     } as RequestInit);
 
-    const data = await response.json();
+    let data: any = null;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || '註冊失敗');
+      throw new Error(
+        data?.error || `註冊失敗 (HTTP ${response.status})，請確認後台伺服器是否已啟動`
+      );
     }
 
     localStorage.setItem('auth_token', data.token);
