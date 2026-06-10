@@ -16,7 +16,27 @@
   --card-bg: rgba(255, 255, 255, 0.03);
 }
 
-/* 其他主題顏色 */
+[data-theme='light'] {
+  /* 淺色模式 */
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --text-primary: #1a1a24;
+  --text-secondary: #5a5a6a;
+  --accent: #007c91; /* 淺色模式預設：加深藍綠色以利閱讀 */
+  --accent-hover: #005f70;
+  --accent-glow: rgba(0, 124, 145, 0.2);
+  --danger: #e6004c;
+  --success: #008055;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --card-bg: rgba(0, 0, 0, 0.02);
+}
+
+/* ==========================================================================
+   主題顏色定義 (後宣告者優先覆蓋)
+   ========================================================================== */
+
+/* --- 深色模式配色 (霓虹明亮色調) --- */
 [data-color='purple'] {
   --accent: #b000ff;
   --accent-hover: #9000cc;
@@ -47,20 +67,41 @@
   --accent-glow: rgba(255, 215, 0, 0.4);
 }
 
-[data-theme='light'] {
-  /* 淺色模式 */
-  --bg-primary: #f0f2f5;
-  --bg-secondary: #ffffff;
-  --text-primary: #1a1a24;
-  --text-secondary: #5a5a6a;
-  --accent: #0055ff;
-  --accent-hover: #0044cc;
-  --accent-glow: rgba(0, 85, 255, 0.2);
-  --danger: #e6004c;
-  --success: #00cc88;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --card-bg: rgba(0, 0, 0, 0.02);
+/* --- 淺色模式配色 (高對比度，加深色調提升閱讀體驗) --- */
+[data-theme='light'][data-color='cyan'] {
+  --accent: #007c91;
+  --accent-hover: #005f70;
+  --accent-glow: rgba(0, 124, 145, 0.2);
+}
+
+[data-theme='light'][data-color='purple'] {
+  --accent: #8b00cc;
+  --accent-hover: #6a0099;
+  --accent-glow: rgba(139, 0, 204, 0.2);
+}
+
+[data-theme='light'][data-color='pink'] {
+  --accent: #d6006b;
+  --accent-hover: #a30052;
+  --accent-glow: rgba(214, 0, 107, 0.2);
+}
+
+[data-theme='light'][data-color='green'] {
+  --accent: #008055;
+  --accent-hover: #006040;
+  --accent-glow: rgba(0, 128, 85, 0.2);
+}
+
+[data-theme='light'][data-color='orange'] {
+  --accent: #cc5c00;
+  --accent-hover: #994500;
+  --accent-glow: rgba(204, 92, 0, 0.2);
+}
+
+[data-theme='light'][data-color='yellow'] {
+  --accent: #b38600;
+  --accent-hover: #806000;
+  --accent-glow: rgba(179, 134, 0, 0.2);
 }
 
 * {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, RotateCcw, Trophy, Clock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './WhackAMole.css';
 
 type MoleType = 'gold' | 'silver' | 'black' | 'normal';
@@ -34,12 +35,26 @@ const getScore = (type: MoleType): number => {
   }
 };
 
+interface LeaderboardRecord {
+  name: string;
+  score: number;
+  created_at: string;
+  is_member?: boolean;
+}
+
 const WhackAMole = () => {
+  const { user, token } = useAuth();
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMoles, setActiveMoles] = useState<MoleData[]>([]);
   const [hitMoles, setHitMoles] = useState<HitData[]>([]);
+  
+  // Leaderboard states
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRecord[]>([]);
+  const [playerName, setPlayerName] = useState('');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const timeLeftRef = useRef(timeLeft);
 
@@ -47,18 +62,71 @@ const WhackAMole = () => {
     timeLeftRef.current = timeLeft;
   }, [timeLeft]);
 
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await fetch('/api/scores');
+      if (response.ok) {
+        const data = await response.json();
+        setLeaderboard(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch leaderboard:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
   const startGame = () => {
     setScore(0);
     setTimeLeft(30);
     setIsPlaying(true);
     setActiveMoles([]);
     setHitMoles([]);
+    setHasSubmitted(false);
+    setPlayerName('');
   };
 
   const endGame = useCallback(() => {
     setIsPlaying(false);
     setActiveMoles([]);
   }, []);
+
+  const submitScore = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const finalName = user ? user.display_name : playerName.trim();
+    if (!finalName || isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/scores', {
+        key: 'submit-score',
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: finalName,
+          score: score,
+        }),
+      } as RequestInit);
+
+      if (response.ok) {
+        setHasSubmitted(true);
+        fetchLeaderboard();
+      }
+    } catch (error) {
+      console.error('Failed to submit score:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Timer loop
   useEffect(() => {
@@ -150,58 +218,127 @@ const WhackAMole = () => {
       <div className="container">
         <h2>打地鼠挑戰</h2>
         
-        <div className="game-container glass">
-          <div className="game-stats">
-            <div className="stat-box">
-              <Trophy className="stat-icon" />
-              <span>分數: {score}</span>
+        <div className="game-layout">
+          {/* 左側：遊戲面板 */}
+          <div className="game-board-wrapper glass">
+            <div className="game-stats">
+              <div className="stat-box">
+                <Trophy className="stat-icon" />
+                <span>分數: {score}</span>
+              </div>
+              <div className="stat-box">
+                <Clock className="stat-icon" />
+                <span>時間: {timeLeft}s</span>
+              </div>
             </div>
-            <div className="stat-box">
-              <Clock className="stat-icon" />
-              <span>時間: {timeLeft}s</span>
-            </div>
-          </div>
 
-          <div className="grid">
-            {Array.from({ length: 25 }).map((_, index) => {
-              const activeMole = activeMoles.find(m => m.index === index);
-              const hitMole = hitMoles.find(m => m.index === index);
-              
-              return (
-                <div key={index} className="hole-container" onClick={() => whack(index)}>
-                  <div className="hole"></div>
-                  <div 
-                    className={`mole ${activeMole ? 'up ' + activeMole.type : ''} ${hitMole ? 'hit ' + hitMole.type : ''}`}
-                  ></div>
-                  {hitMole && (
-                    <div className={`hit-effect ${hitMole.score < 0 ? 'negative' : ''} ${hitMole.type === 'gold' ? 'gold-score' : ''} ${hitMole.type === 'silver' ? 'silver-score' : ''}`}>
-                      {hitMole.score > 0 ? '+' : ''}{hitMole.score}
+            <div className="grid">
+              {Array.from({ length: 25 }).map((_, index) => {
+                const activeMole = activeMoles.find(m => m.index === index);
+                const hitMole = hitMoles.find(m => m.index === index);
+                
+                return (
+                  <div key={index} className="hole-container" onClick={() => whack(index)}>
+                    <div className="hole"></div>
+                    <div 
+                      className={`mole ${activeMole ? 'up ' + activeMole.type : ''} ${hitMole ? 'hit ' + hitMole.type : ''}`}
+                    ></div>
+                    {hitMole && (
+                      <div className={`hit-effect ${hitMole.score < 0 ? 'negative' : ''} ${hitMole.type === 'gold' ? 'gold-score' : ''} ${hitMole.type === 'silver' ? 'silver-score' : ''}`}>
+                        {hitMole.score > 0 ? '+' : ''}{hitMole.score}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="game-controls">
+              {!isPlaying ? (
+                <button className="btn btn-primary" onClick={startGame}>
+                  {timeLeft === 0 ? <RotateCcw size={20} /> : <Play size={20} />}
+                  {timeLeft === 0 ? '再玩一次' : '開始遊戲'}
+                </button>
+              ) : (
+                <button className="btn btn-danger" onClick={endGame}>
+                  結束遊戲
+                </button>
+              )}
+            </div>
+            
+            {timeLeft === 0 && !isPlaying && (
+              <div className="game-over-msg">
+                <h3>遊戲結束！</h3>
+                <p>您的最終得分是 {score} 分</p>
+                
+                {!hasSubmitted ? (
+                  user ? (
+                    <div style={{ marginTop: '1rem' }}>
+                      <p>您已登入為 <strong>{user.display_name}</strong></p>
+                      <button 
+                        onClick={() => submitScore()} 
+                        className="btn btn-primary" 
+                        style={{ marginTop: '0.8rem' }}
+                        disabled={isSubmitting}
+                      >
+                        提交成績到排行榜
+                      </button>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="game-controls">
-            {!isPlaying ? (
-              <button className="btn btn-primary" onClick={startGame}>
-                {timeLeft === 0 ? <RotateCcw size={20} /> : <Play size={20} />}
-                {timeLeft === 0 ? '再玩一次' : '開始遊戲'}
-              </button>
-            ) : (
-              <button className="btn btn-danger" onClick={endGame}>
-                結束遊戲
-              </button>
+                  ) : (
+                    <form onSubmit={submitScore} className="score-submit-form">
+                      <p>輸入名字以紀錄您的佳績：</p>
+                      <div className="score-submit-input-group">
+                        <input
+                          type="text"
+                          className="score-submit-input"
+                          placeholder="請輸入暱稱..."
+                          value={playerName}
+                          onChange={(e) => setPlayerName(e.target.value)}
+                          maxLength={15}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ padding: '0.4rem 1rem' }} disabled={isSubmitting}>
+                          提交
+                        </button>
+                      </div>
+                    </form>
+                  )
+                ) : (
+                  <p style={{ color: 'var(--success)', marginTop: '1rem', fontWeight: 'bold' }}>分數已成功提交至排行榜！</p>
+                )}
+              </div>
             )}
           </div>
-          
-          {timeLeft === 0 && !isPlaying && (
-            <div className="game-over-msg">
-              <h3>遊戲結束！</h3>
-              <p>您的最終得分是 {score} 分</p>
+
+          {/* 右側：排行榜 */}
+          <div className="leaderboard-wrapper glass">
+            <h3>
+              <Trophy size={20} color="var(--accent)" />
+              排行榜 TOP 10
+            </h3>
+            
+            <div className="leaderboard-list">
+              {leaderboard.length === 0 ? (
+                <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>目前尚無紀錄</p>
+              ) : (
+                leaderboard.slice(0, 10).map((record, index) => (
+                  <div key={index} className={`leaderboard-item ${index < 3 ? 'top-3' : ''}`}>
+                    <div className={`rank-badge rank-${index + 1}`}>
+                      {index + 1}
+                    </div>
+                    <div className="leaderboard-player" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      {record.name}
+                      {record.is_member && (
+                        <span className="member-badge" title="已驗證會員" style={{ color: '#ffd700', textShadow: '0 0 5px rgba(255, 215, 0, 0.8)', fontSize: '0.9rem' }}>★</span>
+                      )}
+                    </div>
+                    <div className="leaderboard-score">{record.score} 分</div>
+                  </div>
+                ))
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </section>
